@@ -48,7 +48,13 @@
     text-shadow: 0 2px 24px color-mix(in srgb, var(--active-zone) 35%, transparent);
     transition: background 0.4s ease;
   }
-  #gearapp .tagline { color: #A9A296; font-size: 13px; }
+  #gearapp .tagline {
+    color: #A9A296; font-size: 13px; cursor: text; border-radius: 4px;
+    padding: 2px 4px; margin: -2px -4px; border: 1px solid transparent; outline: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  #gearapp .tagline:hover { border-color: #3A4030; }
+  #gearapp .tagline:focus { border-color: #3E8CA6; background: #16190F; }
   #gearapp .headertop {
     display: flex; align-items: flex-start; justify-content: space-between;
     margin-bottom: 20px; gap: 12px; padding-bottom: 16px;
@@ -885,6 +891,9 @@
   #gearapp[data-theme="light"] .apptoast { background: #2B2A22; color: #FFFDF6; border-color: #4A4636; }
   #gearapp[data-theme="light"] .authgate-box p { color: #6B6555; }
   #gearapp[data-theme="light"] .authgate-note { color: #8A8474; }
+  #gearapp[data-theme="light"] .tagline { color: #6B6555; }
+  #gearapp[data-theme="light"] .tagline:hover { border-color: #DCD3B8; }
+  #gearapp[data-theme="light"] .tagline:focus { border-color: #3E8CA6; background: #FBF7EA; }
   #gearapp[data-theme="light"] .weatherresults,
   #gearapp[data-theme="light"] .owmkeybox { background: #EDF3F7; border-color: #C7D9E3; color: #2B2A22; }
   #gearapp[data-theme="light"] .notecard { background: #FFFDF6; border-color: #DCD3B8; }
@@ -1049,16 +1058,12 @@
   <div class="headertop">
     <div>
       <h1>Loadout</h1>
-      <div class="tagline">Sky Camper 2.0 · GMC 2500HD</div>
+      <div class="tagline" id="taglineText" contenteditable="true" spellcheck="false" onblur="saveTagline()" onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">Sky Camper 2.0 · GMC 2500HD</div>
     </div>
     <div class="headerbtns">
       <button class="themebtn" id="newListBtn" onclick="startNewList()" title="Clear the whole working checklist and start fresh — keeps your custom tabs, rules, saved trips, and notes">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
         <span id="newListLabel">Start new list</span>
-      </button>
-      <button class="themebtn" id="expandAllBtn" onclick="toggleExpandAllCards()" title="Expand or collapse every calculator card at once">
-        <svg id="expandAllIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
-        <span id="expandAllLabel">Expand all</span>
       </button>
       <button class="themebtn" id="signOutBtn" onclick="signOutUser()" title="Sign out of cloud sync">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -1079,7 +1084,6 @@
 
   <div class="tabs tabs-toprow" id="tabsExclusive"></div>
   <div class="tabs" id="tabs"></div>
-  <div class="multitabhint" id="multiTabHint">Rounded tabs combine — tap more than one to merge lists (e.g. Rooftop tent + Hunting). Dashed square tabs (Camp Menu, Notes) are standalone views.</div>
 
   <div class="toolbar">
     <div class="searchwrap">
@@ -1130,9 +1134,9 @@
 
   <div id="sections"></div>
 
-  <div id="tripSetupPanel" style="display:none;">
+  <div id="tripCalcPanel" style="display:none;">
   <div class="calc calc-trip">
-    <div class="calc-headrow" onclick="toggleCollapsible('tripCalcBody','tripCalcArrow')">
+    <div class="calc-headrow">
       <div class="calc-head">
         <span class="cardicon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
         Trip calculator
@@ -1144,12 +1148,9 @@
         <button class="iconbtn" onclick="event.stopPropagation(); resetTripCalc()" title="Reset">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         </button>
-        <span class="guidearrow" id="tripCalcArrow">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </span>
       </div>
     </div>
-    <div id="tripCalcBody">
+    <div id="tripCalcBody" class="open">
     <div class="savedtriprow">
       <span class="notesbtn" onclick="goToTripHistory()">📋 View saved trips in Trip History →</span>
     </div>
@@ -1301,8 +1302,10 @@
     </div>
   </div>
 
+  </div>
+  <div id="gasCalcPanel" style="display:none;">
   <div class="calc calc-gas">
-    <div class="calc-headrow" onclick="toggleCollapsible('gasCalcBody','gasCalcArrow')">
+    <div class="calc-headrow">
       <div class="calc-head">
         <span class="cardicon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="22" x2="15" y2="22"/><line x1="4" y1="9" x2="14" y2="9"/><path d="M4 22V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v18"/><path d="M14 9h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2v0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/></svg></span>
         Gas calculator
@@ -1314,12 +1317,9 @@
         <button class="iconbtn" onclick="event.stopPropagation(); resetGasCalc()" title="Reset">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         </button>
-        <span class="guidearrow" id="gasCalcArrow">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </span>
       </div>
     </div>
-    <div id="gasCalcBody">
+    <div id="gasCalcBody" class="open">
     <div class="calc-datesnote" id="priceUpdateNote">Truck (diesel) is always on. Add the RZR to plan fuel/octane before hitting the mountain or on the way home.</div>
     <div class="vehiclelabel">Truck — 2015 GMC Denali 2500HD, 6" lift, 37s, diesel — tuned, Economy Towing Tune #3</div>
     <div class="weatherinline">
@@ -1394,8 +1394,10 @@
     </div>
   </div>
 
+  </div>
+  <div id="shopPanel" style="display:none;">
   <div class="calc calc-shop">
-    <div class="calc-headrow" onclick="toggleCollapsible('shopBody','shopArrow')">
+    <div class="calc-headrow">
       <div class="calc-head">
         <span class="cardicon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
         Shopping list — Walmart
@@ -1410,12 +1412,9 @@
         <button class="iconbtn" onclick="event.stopPropagation(); resetShoppingPrices()" title="Reset">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         </button>
-        <span class="guidearrow" id="shopArrow">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </span>
       </div>
     </div>
-    <div id="shopBody">
+    <div id="shopBody" class="open">
     <div class="calc-datesnote">Pulls from every item marked "Buy" across Dry food, Cooler, and Kitchen (Stryker) — toggle the cart icon on an item to add or remove it here. Check items off as you actually put them in your cart at the store.</div>
     <div id="shoppingListBody"></div>
     <div class="shoptotalrow">
@@ -1425,17 +1424,16 @@
     </div>
   </div>
 
+  </div>
+  <div id="clothesPanel" style="display:none;">
   <div class="calc calc-clothes-card">
-    <div class="calc-headrow" onclick="toggleClothes()">
+    <div class="calc-headrow">
       <div class="calc-head">
         <span class="cardicon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></span>
         Clothes to pack
       </div>
-      <span class="guidearrow" id="clothesArrow">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </span>
     </div>
-    <div id="clothesBody">
+    <div id="clothesBody" class="open">
       <div class="calc-datesnote">Uses the same trip details above — this is just kept separate so it doesn't get lost in the water/ice numbers.</div>
       <div class="clothlist" id="clothResults"></div>
     </div>
@@ -2454,7 +2452,7 @@ let menuTagFilter = null;
 const FOOD_SECTIONS = new Set(["Dry food", "Cooler", "Kitchen (Stryker)"]);
 let activeTabs = new Set(["always"]);
 let lastZoneKey = "always";
-const SPECIAL_TABS = new Set(["menu", "notes", "history", "guide", "rules", "setup"]);
+const SPECIAL_TABS = new Set(["menu", "history", "rules", "tripcalc", "gascalc", "shoplist", "packlist"]);
 let activeFilter = "All";
 let searchTerm = "";
 let hideMissingPacked = false;
@@ -2466,8 +2464,9 @@ let showCleanOnly = false;
 const ZONE_COLORS = {
   menu: '#D9A441', always: '#7A9B5E', trip: '#B8763A',
   rzr: '#C05A34', duckboat: '#3E85A0', toyhauler: '#8C7A52',
-  edc: '#4A6B7A', hunting: '#A8483A', backpacking: '#4A7A5E', notes: '#8C7A8A',
-  camera: '#8073B5', history: '#9C6B3E', guide: '#6B8C8A', rules: '#6B5A8C', setup: '#3E8CA6'
+  edc: '#4A6B7A', hunting: '#A8483A', backpacking: '#4A7A5E',
+  camera: '#8073B5', history: '#9C6B3E', rules: '#6B5A8C',
+  tripcalc: '#3E8CA6', gascalc: '#D98C3A', shoplist: '#6E9A4F', packlist: '#B5687A'
 };
 
 function twoStepConfirm(el, actionFn, confirmText) {
@@ -2629,21 +2628,22 @@ function buildTabs() {
   const tabsExclusiveEl = document.getElementById('tabsExclusive');
   const tabsEl = document.getElementById('tabs');
   const tabDefs = [
-    { key: "setup", label: "Trip Setup" },
+    { key: "tripcalc", label: "Trip Calculator" },
+    { key: "gascalc", label: "Gas Calculator" },
+    { key: "shoplist", label: "Shopping List" },
+    { key: "packlist", label: "Packing List" },
     { key: "menu", label: "Camp Menu" },
-    { key: "notes", label: "Notes" },
     { key: "history", label: "Trip History" },
-    { key: "guide", label: "Routine Guide" },
     { key: "rules", label: "Rules" },
-    { key: "edc", label: "EDC" },
-    { key: "always", label: "Truck always" },
-    { key: "trip", label: "Rooftop tent" },
-    { key: "rzr", label: "RZR gear" },
-    { key: "duckboat", label: "Duck boat" },
-    { key: "toyhauler", label: "Toy Hauler" },
-    { key: "hunting", label: "Hunting" },
-    { key: "backpacking", label: "Backpacking" },
-    { key: "camera", label: "Content/Camera" }
+    { key: "edc", label: "EDC Gear" },
+    { key: "always", label: "Truck EDC Gear" },
+    { key: "trip", label: "Rooftop Tent Gear" },
+    { key: "rzr", label: "RZR Gear" },
+    { key: "duckboat", label: "Duck Boat Gear" },
+    { key: "toyhauler", label: "Toy Hauler Gear" },
+    { key: "hunting", label: "Hunting Gear" },
+    { key: "backpacking", label: "Backpacking Gear" },
+    { key: "camera", label: "Content/Camera Gear" }
   ];
   customTabs.forEach(t => {
     tabDefs.push({ key: t.key, label: t.label });
@@ -2665,15 +2665,12 @@ function buildTabs() {
   tabsEl.innerHTML = tabDefs.filter(t => !SPECIAL_TABS.has(t.key)).map(renderTab).join('');
   const app = document.getElementById('gearapp');
   if (app) app.style.setProperty('--active-zone', ZONE_COLORS[lastZoneKey] || '#C88A3E');
-  const inSpecial = [...activeTabs].some(k => SPECIAL_TABS.has(k));
   const resetLabel = document.getElementById('resetLabel');
   const missingBtn = document.getElementById('toggleMissingBtn');
   const resetBtn = document.getElementById('mainResetBtn');
   if (resetLabel) resetLabel.textContent = activeTabs.has('menu') ? 'Clear menu' : 'Reset all';
   if (missingBtn) missingBtn.style.display = (activeTabs.has('menu') || activeTabs.has('notes')) ? 'none' : '';
   if (resetBtn) resetBtn.style.display = activeTabs.has('notes') ? 'none' : '';
-  const hint = document.getElementById('multiTabHint');
-  if (hint) hint.style.display = inSpecial ? 'none' : '';
 }
 
 function setTab(key) {
@@ -3112,6 +3109,10 @@ async function load() {
   } catch (e) { owmApiKey = ''; }
   updateOwmKeyStatus();
   try {
+    const taglineRes = await cloudStorage.get('gear-checklist-tagline', false);
+    if (taglineRes && taglineRes.value) document.getElementById('taglineText').textContent = taglineRes.value;
+  } catch (e) { console.error('tagline load failed', e); }
+  try {
     const viewRes = await cloudStorage.get('gear-checklist-viewmode', false);
     viewMode = viewRes && viewRes.value ? viewRes.value : 'advanced';
   } catch (e) { viewMode = 'advanced'; }
@@ -3293,6 +3294,14 @@ async function toggleViewMode() {
   catch (e) { console.error('view mode save failed', e); }
 }
 
+async function saveTagline() {
+  const el = document.getElementById('taglineText');
+  const text = el.textContent.trim() || 'Sky Camper 2.0 · GMC 2500HD';
+  el.textContent = text;
+  try { await cloudStorage.set('gear-checklist-tagline', text, false); }
+  catch (e) { console.error('tagline save failed', e); }
+}
+
 async function toggleTheme() {
   currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
   applyTheme();
@@ -3305,40 +3314,6 @@ function toggleAdvanced() {
   const arrow = document.getElementById('advArrow');
   body.classList.toggle('open');
   arrow.classList.toggle('open');
-}
-
-function toggleClothes() {
-  const body = document.getElementById('clothesBody');
-  const arrow = document.getElementById('clothesArrow');
-  body.classList.toggle('open');
-  arrow.classList.toggle('open');
-}
-
-function toggleCollapsible(bodyId, arrowId) {
-  const body = document.getElementById(bodyId);
-  const arrow = document.getElementById(arrowId);
-  body.classList.toggle('open');
-  arrow.classList.toggle('open');
-}
-
-const COLLAPSIBLE_CARD_PAIRS = [
-  ['tripCalcBody', 'tripCalcArrow'],
-  ['gasCalcBody', 'gasCalcArrow'],
-  ['shopBody', 'shopArrow'],
-  ['clothesBody', 'clothesArrow']
-];
-
-function toggleExpandAllCards() {
-  const bodies = COLLAPSIBLE_CARD_PAIRS.map(([b]) => document.getElementById(b)).filter(Boolean);
-  const anyClosed = bodies.some(b => !b.classList.contains('open'));
-  COLLAPSIBLE_CARD_PAIRS.forEach(([bodyId, arrowId]) => {
-    const body = document.getElementById(bodyId);
-    const arrow = document.getElementById(arrowId);
-    if (!body || !arrow) return;
-    body.classList.toggle('open', anyClosed);
-    arrow.classList.toggle('open', anyClosed);
-  });
-  document.getElementById('expandAllLabel').textContent = anyClosed ? 'Collapse all' : 'Expand all';
 }
 
 function resetTripCalc() {
@@ -3905,7 +3880,7 @@ function toggleAddPopover() {
   fab.classList.toggle('open');
   if (opening) {
     const sel = document.getElementById('addItemSection');
-    const tabLabels = { always: 'Truck always', edc: 'EDC', camera: 'Content/Camera', trip: 'Rooftop tent', hunting: 'Hunting', rzr: 'RZR gear', duckboat: 'Duck boat', toyhauler: 'Toy Hauler', towing: 'Trailer & towing' };
+    const tabLabels = { always: 'Truck EDC Gear', edc: 'EDC Gear', camera: 'Content/Camera Gear', trip: 'Rooftop Tent Gear', hunting: 'Hunting Gear', rzr: 'RZR Gear', duckboat: 'Duck Boat Gear', toyhauler: 'Toy Hauler Gear', towing: 'Trailer & towing' };
     customTabs.forEach(t => { tabLabels[t.key] = t.label; });
     const groups = {};
     DATA.forEach(s => {
@@ -3974,7 +3949,7 @@ function onAddSectionChange() {
   const targetSel = document.getElementById('newListTarget');
   targetSel.style.display = isNewList ? '' : 'none';
   if (isNewList) {
-    const tabLabels = { menu: 'Camp Menu', edc: 'EDC', camera: 'Content/Camera', always: 'Truck always', trip: 'Rooftop tent', rzr: 'RZR gear', duckboat: 'Duck boat', toyhauler: 'Toy Hauler', hunting: 'Hunting', backpacking: 'Backpacking' };
+    const tabLabels = { menu: 'Camp Menu', edc: 'EDC Gear', camera: 'Content/Camera Gear', always: 'Truck EDC Gear', trip: 'Rooftop Tent Gear', rzr: 'RZR Gear', duckboat: 'Duck Boat Gear', toyhauler: 'Toy Hauler Gear', hunting: 'Hunting Gear', backpacking: 'Backpacking Gear' };
     customTabs.forEach(t => { tabLabels[t.key] = t.label; });
     const existingKeys = [...new Set(DATA.map(s => s.category))];
     targetSel.innerHTML = `<option value="__newtab__">Put it in a brand new tab</option>` +
@@ -4264,7 +4239,7 @@ function ctxMoveToSection() {
   if (!contextMenuTarget) return;
   const { sectionName } = contextMenuTarget;
   const sel = document.getElementById('moveItemSection');
-  const tabLabels = { always: 'Truck always', edc: 'EDC', camera: 'Content/Camera', trip: 'Rooftop tent', hunting: 'Hunting', rzr: 'RZR gear', duckboat: 'Duck boat', toyhauler: 'Toy Hauler', towing: 'Trailer & towing' };
+  const tabLabels = { always: 'Truck EDC Gear', edc: 'EDC Gear', camera: 'Content/Camera Gear', trip: 'Rooftop Tent Gear', hunting: 'Hunting Gear', rzr: 'RZR Gear', duckboat: 'Duck Boat Gear', toyhauler: 'Toy Hauler Gear', towing: 'Trailer & towing' };
   customTabs.forEach(t => { tabLabels[t.key] = t.label; });
   const groups = {};
   DATA.forEach(s => {
@@ -4898,7 +4873,7 @@ function newCustomRule() {
   document.getElementById('addPopover').classList.add('open');
   document.getElementById('fabBtn').classList.add('open');
   const sel = document.getElementById('addItemSection');
-  const tabLabels = { always: 'Truck always', edc: 'EDC', camera: 'Content/Camera', trip: 'Rooftop tent', hunting: 'Hunting', rzr: 'RZR gear', duckboat: 'Duck boat', toyhauler: 'Toy Hauler', towing: 'Trailer & towing' };
+  const tabLabels = { always: 'Truck EDC Gear', edc: 'EDC Gear', camera: 'Content/Camera Gear', trip: 'Rooftop Tent Gear', hunting: 'Hunting Gear', rzr: 'RZR Gear', duckboat: 'Duck Boat Gear', toyhauler: 'Toy Hauler Gear', towing: 'Trailer & towing' };
   customTabs.forEach(t => { tabLabels[t.key] = t.label; });
   const groups = {};
   DATA.forEach(s => {
@@ -5389,23 +5364,31 @@ function toggleConditionMet(requiresToggle) {
 }
 
 function render() {
-  const setupPanel = document.getElementById('tripSetupPanel');
+  const panels = {
+    tripcalc: document.getElementById('tripCalcPanel'),
+    gascalc: document.getElementById('gasCalcPanel'),
+    shoplist: document.getElementById('shopPanel'),
+    packlist: document.getElementById('clothesPanel')
+  };
   const sectionsEl = document.getElementById('sections');
-  if (activeTabs.has('setup')) {
-    if (setupPanel) setupPanel.style.display = '';
+  const activeCalcKey = Object.keys(panels).find(k => activeTabs.has(k));
+
+  Object.entries(panels).forEach(([key, el]) => {
+    if (el) el.style.display = key === activeCalcKey ? '' : 'none';
+  });
+
+  if (activeCalcKey) {
     if (sectionsEl) sectionsEl.style.display = 'none';
-    document.getElementById('progresstext').textContent = 'Trip setup';
+    const labels = { tripcalc: 'Trip calculator', gascalc: 'Gas calculator', shoplist: 'Shopping list', packlist: 'Packing list' };
+    document.getElementById('progresstext').textContent = labels[activeCalcKey];
     document.getElementById('progresspct').textContent = '';
     document.getElementById('progressfill').style.width = '0%';
     return;
   }
-  if (setupPanel) setupPanel.style.display = 'none';
   if (sectionsEl) sectionsEl.style.display = '';
 
   if (activeTabs.has('menu')) { renderMenuTab(); return; }
-  if (activeTabs.has('notes')) { renderNotesTab(); return; }
   if (activeTabs.has('history')) { renderTripHistoryTab(); return; }
-  if (activeTabs.has('guide')) { renderGuideTab(); return; }
   if (activeTabs.has('rules')) { renderRulesTab(); return; }
 
   let totalAll = 0, doneAll = 0;
@@ -5741,7 +5724,26 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let supabaseClient = null;
 let currentUser = null;
 
+const PRODUCTION_HOST_SUFFIX = 'github.io';
+let previewMode = false;
+
 async function initApp() {
+  const host = window.location.hostname;
+  const isProduction = host.endsWith(PRODUCTION_HOST_SUFFIX);
+
+  if (!isProduction) {
+    // Preview/dev context (Claude's chat preview, local file, etc.) — skip login
+    // entirely so changes can be reviewed. cloudStorage silently no-ops without a
+    // logged-in user, so nothing persists here; that's expected and fine for review.
+    previewMode = true;
+    await startApp();
+    const badge = document.createElement('div');
+    badge.textContent = 'Preview mode — not signed in, nothing saved. Sign in on the live site for cloud sync.';
+    badge.style.cssText = 'position:sticky; top:0; z-index:50; background:#C98A2E; color:#1A1206; font-family:Oswald,sans-serif; font-size:11.5px; font-weight:600; text-align:center; padding:5px; letter-spacing:0.02em;';
+    document.getElementById('appContent').prepend(badge);
+    return;
+  }
+
   if (SUPABASE_URL.includes('PLACEHOLDER') || SUPABASE_ANON_KEY.includes('PLACEHOLDER')) {
     document.getElementById('authGateText').textContent = "Cloud sync isn't configured yet in this copy of the file.";
     document.getElementById('authGateNote').textContent = 'Ask Claude to finish wiring up your Supabase project URL and key.';
