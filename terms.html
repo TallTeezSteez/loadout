@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitted — Terms of Service</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    background: #12150E; color: #F1ECDC;
+    max-width: 640px; margin: 0 auto; padding: 40px 24px 80px;
+    line-height: 1.6;
+  }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  .updated { color: #8C887C; font-size: 13px; margin-bottom: 32px; }
+  h2 { font-size: 18px; margin-top: 32px; color: #F1ECDC; }
+  p, li { color: #C9C4B6; font-size: 15px; }
+  a { color: #7FA8B8; }
+  ul { padding-left: 22px; }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #7FA8B8; font-size: 14px; cursor: pointer; text-decoration: none;
+    margin-bottom: 24px; background: none; border: none; padding: 0; font-family: inherit;
+  }
+  .back-btn:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<span class="back-btn" onclick="goBack()">← Back to Kitted</span>
+<script>
+  function goBack() {
+    window.close();
+    setTimeout(() => {
+      if (history.length > 1) history.back();
+      else window.location.href = 'index.html';
+    }, 100);
+  }
+</script>
+
+<h1>Kitted — Terms of Service</h1>
+<div class="updated">Last updated: September 2026</div>
+
+<p>These terms cover your use of Kitted, a personal gear-checklist app. By using the app, you agree to the terms below.</p>
+
+<h2>What Kitted is</h2>
+<p>Kitted is a tool for organizing gear checklists, trip planning, and related personal organization. It's provided as-is, primarily as a personal project, without guarantees of uptime, permanence, or fitness for any particular purpose.</p>
+
+<h2>Your account and content</h2>
+<ul>
+  <li>You're responsible for the accuracy of the information you enter into the app.</li>
+  <li>You retain ownership of the content you create (your lists, notes, and data).</li>
+  <li>You can delete your account and all associated data at any time from Settings.</li>
+</ul>
+
+<h2>Acceptable use</h2>
+<p>Don't use Kitted to store or transmit unlawful content, attempt to disrupt the service, or attempt to access other users' data.</p>
+
+<h2>No warranty</h2>
+<p>Kitted is provided "as is," without warranties of any kind. It may contain bugs, may change, and may be discontinued at any time. Don't rely on it as your sole record of anything safety-critical.</p>
+
+<h2>Limitation of liability</h2>
+<p>To the fullest extent permitted by law, Kitted and its developer are not liable for any indirect, incidental, or consequential damages arising from use of the app, including loss of data.</p>
+
+<h2>Changes to these terms</h2>
+<p>If these terms change, the "last updated" date at the top of this page will change accordingly. Continued use of the app after changes means you accept the updated terms.</p>
+
+<h2>Contact</h2>
+<p>Questions about these terms can be directed through the app itself.</p>
+
+<p style="margin-top:32px;"><a href="privacy.html">View the Privacy Policy</a></p>
+
+</body>
+</html>
